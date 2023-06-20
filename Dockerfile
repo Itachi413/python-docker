@@ -1,20 +1,16 @@
-#
-# Python Dockerfile
-#
-# https://github.com/dockerfile/python
-#
+FROM python:3.11.2-slim-buster
 
-# Pull base image.
-FROM ubuntu
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app
 
-# Install Python.
-RUN \
-  apt-get update && \
-  apt-get install -y python python-dev python-pip python-virtualenv && \
-  rm -rf /var/lib/apt/lists/*
+ENV PYTHONUNBUFFERED 1
 
-# Define working directory.
-WORKDIR /data
+COPY . .
 
-# Define default command.
-CMD ["bash"]
+RUN apt-get update \
+  && apt-get -y install gcc \
+  && apt-get clean \
+  && pip install --upgrade pip \
+  && pip install -r requirements/prod.txt
+
+ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
